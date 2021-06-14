@@ -1,0 +1,10 @@
+name: "Publish to GitHub Wiki"
+description: "pushes a folders contents to a github wiki"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+
+branding:
+  icon: "book-open"
+  color: "white"
