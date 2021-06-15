@@ -33,11 +33,15 @@ func main() {
 		return
 	}
 
-	err = filepath.WalkDir("./wiki", CopyFilesToTemp)
+	os.Chdir("./wiki")
+
+	err = filepath.WalkDir(".", CopyFilesToTemp)
 	if err != nil {
 		fmt.Printf("error walking the path %q: %v\n", tmpDir, err)
 		return
 	}
+
+	os.Chdir("../")
 
 	err = pushToWiki()
 	if err != nil {
@@ -128,12 +132,14 @@ func CopyFilesToTemp(path string, info fs.DirEntry, err error) error {
 		fmt.Printf("skipping a dir without errors: %+v \n", info.Name())
 		return filepath.SkipDir
 	}
-	joinedPath := workingDir
+	joinedPath := filepath.Join(workingDir, path)
 	if info.IsDir() {
 		fmt.Printf("visited dir: %q\n", path)
 		cmd := exec.Command("mkdir", "-p", joinedPath)
 		err := cmd.Run()
-		fmt.Printf("Command finished with error: %v\n", err)
+		if err != nil {
+			fmt.Printf("Command finished with error: %v\n", err)
+		}
 	} else {
 
 		fmt.Printf("visited file : %q\n", path)
@@ -144,7 +150,9 @@ func CopyFilesToTemp(path string, info fs.DirEntry, err error) error {
 		}
 		cmd := exec.Command("cp", path, joinedPath)
 		err := cmd.Run()
-		fmt.Printf("Command finished with error: %v\n", err)
+		if err != nil {
+			fmt.Printf("Command finished with error: %v\n", err)
+		}
 	}
 
 	return nil
